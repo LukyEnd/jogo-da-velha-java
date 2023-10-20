@@ -31,14 +31,18 @@ public class InterfaceGrafica extends JFrame {
             jbtLogo.setCursor(new Cursor(Cursor.HAND_CURSOR));
             jbtLogo.setBounds(new Rectangle(699, 2, 100, 100));
             jbtLogo.addActionListener(e -> JOptionPane.showMessageDialog(null, """
-                    Este jogo foi desenvolvido usando o algoritmo Minimax, uma técnica de Inteligência Artificial.
-
-                     O Minimax é uma abordagem na teoria da decisão que busca minimizar as perdas máximas possíveis. Ele pode ser visto como a maximização do ganho mínimo, conhecido como Maximin.\s
-                     O jogo começa com dois jogadores, representados como 0 (Máquina) e X (Player), seguindo a teoria dos jogos. O conceito do Minimax pode ser estendido para jogos mais complexos e situações\s
-                     de tomada de decisão sob incerteza, onde as consequências das escolhas dependem de fatores desconhecidos. Uma versão simplificada do algoritmo Minimax é usada neste jogo, adequada para\s
-                     jogos como o Jogo da Velha, onde os jogadores podem ganhar, perder ou empatar.
-
-                     - Aproveite o jogo!  - Lucas Sanches""", "Jogo Da Velha - Desenvolvido por Lucas Sanches", JOptionPane.INFORMATION_MESSAGE));
+                    Este jogo foi desenvolvido utilizando, para a IA, o algoritmo Minimax, uma técnica de Inteligência Artificial.
+                    
+                    O Minimax é uma abordagem na teoria da decisão que busca minimizar as perdas máximas possíveis. Ele pode ser visto como a maximização do ganho mínimo, conhecido como Maximin.\s
+                    O jogo começa perguntando ao usuário se deseja jogar com a IA ou com outro jogador. Ao selecionar a IA, será perguntado ao usuário se ele deseja ser representados como o símbolo O ou X,\s
+                    o que não for selecionado, será o símbolo da IA. O conceito do Minimax pode ser estendido para jogos mais complexos e situações de tomada de decisão sob incerteza, onde as consequências\s
+                    das escolhas dependem de fatores desconhecidos. Uma versão simplificada do algoritmo Minimax é usada neste jogo. Neste jogo, os jogadores podem ganhar, perder ou empatar.\s
+                    
+                    Ao Selecionar o jogo contra outro jogador, será perguntado ao usuário se ele deseja ser representados como o símbolo O ou X, o que não for selecionado, será o símbolo do jogador 2.\s
+                    
+                    Obs.: Em ambas as escolhas (contra IA ou contra outro jogador) o começo da partida será aleatória.\s
+                    
+                    - Aproveite o jogo!  - Lucas Sanches""", "Jogo Da Velha - Desenvolvido por Lucas Sanches", JOptionPane.INFORMATION_MESSAGE));
         }
         return jbtLogo;
     }
@@ -61,7 +65,6 @@ public class InterfaceGrafica extends JFrame {
             jlbSubTitulo.setBounds(new Rectangle(89, 48, 643, 20));
             jlbSubTitulo.setHorizontalAlignment(SwingConstants.CENTER);
             jlbSubTitulo.setForeground(new Color(203, 201, 201));
-            jlbSubTitulo.setText("Humano vs Computador (MiniMax IA)");
 
             JLabel jlbTitulo = new JLabel();
             jlbTitulo.setBounds(new Rectangle(88, 5, 643, 40));
@@ -163,11 +166,9 @@ public class InterfaceGrafica extends JFrame {
         // Crie um botão "OK" personalizado
         JButton okButton = new JButton("OK");
         okButton.setPreferredSize(new Dimension(80, 30)); // Ajuste o tamanho do botão
-        okButton.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                // Feche a janela de diálogo quando o botão "OK" for clicado
-                dialog.dispose();
-            }
+        okButton.addActionListener(e -> {
+            // Feche a janela de diálogo quando o botão "OK" for clicado
+            dialog.dispose();
         });
 
         // Adicione o botão ao painel do botão
@@ -178,94 +179,3 @@ public class InterfaceGrafica extends JFrame {
         return contentPanel;
     }
 }
-
-//    public int mostrarPopupOpcoes(int vitoriasJogador, int derrotasJogador, int empates, String resultado) {
-//        // Crie um JDialog personalizado
-//        JDialog dialog = new JDialog();
-//        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-//
-//        // Defina o layout do JDialog (por exemplo, BorderLayout)
-//        dialog.setLayout(new BorderLayout());
-//
-//        // Crie um JPanel para conter o conteúdo personalizado
-//        JPanel contentPanel = getPopupOpcoesPanel(vitoriasJogador, derrotasJogador, empates, resultado, dialog);
-//
-//        // Adicione o painel de conteúdo personalizado ao JDialog
-//        dialog.add(contentPanel);
-//
-//        // Defina o título do JDialog
-//        dialog.setTitle(resultado);
-//
-//        // Defina o tamanho do JDialog
-//        dialog.setSize(400, 200);
-//
-//        // Centralize o JDialog na tela
-//        dialog.setLocationRelativeTo(null);
-//
-//        // Torne o JDialog visível
-//        dialog.setVisible(true);
-//
-//        // Retorne a escolha feita pelo usuário
-//        return escolha;
-//    }
-//
-//    private JPanel getPopupOpcoesPanel(int vitoriasJogador, int derrotasJogador, int empates, String resultado, JDialog dialog) {
-//        JPanel contentPanel = new JPanel();
-//        contentPanel.setLayout(new BorderLayout());
-//
-//        // Crie um JLabel para exibir as informações
-//        JLabel infoLabel = new JLabel(vitoriasJogador + " Vitórias , " + empates + "  Empates , " + derrotasJogador + "  Derrotas");
-//        infoLabel.setHorizontalAlignment(JLabel.CENTER);
-//        contentPanel.add(infoLabel, BorderLayout.CENTER);
-//
-//        // Crie um painel para os botões de opção
-//        JPanel buttonPanel = new JPanel();
-//        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
-//
-//        // Crie os botões de opção
-//        JButton simButton = new JButton("SIM");
-//        JButton naoButton = new JButton("NÃO");
-//        JButton novoJogoButton = new JButton("NOVO JOGO");
-//
-//        // Defina um ActionListener para cada botão
-//        simButton.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                escolha = 1; // Defina o valor de escolha para "SIM"
-//                dialog.dispose(); // Feche o JDialog
-//            }
-//        });
-//
-//        naoButton.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                escolha = 3; // Defina o valor de escolha para "NÃO"
-//                dialog.dispose(); // Feche o JDialog
-//            }
-//        });
-//
-//        novoJogoButton.addActionListener(new ActionListener() {
-//            public void actionPerformed(ActionEvent e) {
-//                escolha = 2; // Defina o valor de escolha para "NOVO JOGO"
-//                dialog.dispose(); // Feche o JDialog
-//            }
-//        });
-//
-//        // Adicione os botões de opção ao painel de botões
-//        buttonPanel.add(simButton);
-//        buttonPanel.add(naoButton);
-//        buttonPanel.add(novoJogoButton);
-//
-//        // Adicione o painel de botões ao painel de conteúdo
-//        contentPanel.add(buttonPanel, BorderLayout.SOUTH);
-//        if (escolha == 1) { // Clicou em "SIM"
-//            // Zera os botões
-//            for (int i = 1; i <= 9; i++) {
-//                InterfaceGrafica.botoes[i].setText("");
-//                copiarEstadoTabela[i] = 0;
-//            }
-//        } else if (escolha == 2) { // Clicou em "NOVO JOGO"
-//            jogoDaVelha.novoJogo();
-//        } else if (escolha != -1){ // Clicou em "NÃO" ou fechou a Modal
-//            System.exit(0);
-//        }
-//        return contentPanel;
-//    }

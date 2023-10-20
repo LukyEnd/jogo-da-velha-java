@@ -9,21 +9,30 @@ import meuApp.jogos.JogoDaVelha.Tabuleiro.Tabuleiro;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Random;
 
 public class JogoDaVelha extends JFrame implements ActionListener {
     InterfaceGrafica interfaceGrafica = new InterfaceGrafica();
-    Tabuleiro tabuleiro = new Tabuleiro();
     Mensagens mensagens = new Mensagens(this);
     Jogador jogador = new Jogador();
     IA ia = new IA(this);
+    Tabuleiro tabuleiro;
+    private final Random random = new Random();
 
     // Matriz das combinações vencedoras
-    private final int[][] ganharCombinacoes = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {1, 4, 7}, {2, 5, 8}, {3, 6, 9}, {1, 5, 9}, {3, 5, 7}};
     private int contador = 0;
     private boolean vitoria = false;
     private String resultado;
     private String identificaJogador = null;
+    private String simboloJogador;
+    private String simboloIA;
+    private String simboloJogador2;
+    private String jogadorAtual;
+    private int escolha;
+    private ModoJogo modoAtual;
 
+    public final int[][] ganharCombinacoes = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {1, 4, 7},
+            {2, 5, 8}, {3, 6, 9}, {1, 5, 9}, {3, 5, 7}};
     public static int vitoriasJogadorUm = 0;
     public static int derrotasJogadorUm = 0;
     public static int empates = 0;
@@ -48,28 +57,144 @@ public class JogoDaVelha extends JFrame implements ActionListener {
             JogoDaVelha thisClass = new JogoDaVelha();
             thisClass.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             thisClass.setVisible(true);
+            thisClass.selecionarModoDeJogo();
         });
+    }
+
+    // Adicione este método para selecionar o modo de jogo
+    private void selecionarModoDeJogo() {
+        String[] opcoes = {"Jogador x IA", "Jogador1 x Jogador2"};
+        escolha = JOptionPane.showOptionDialog(
+                this,
+                "Escolha o modo de jogo:",
+                "Modo de Jogo",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                opcoes,
+                opcoes[0]
+        );
+        int escolhaSimbolo = JOptionPane.showOptionDialog(
+                this,
+                "Escolha o símbolo que deseja usar Jogador1 (X ou O):",
+                "Escolha de Símbolo",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[] {"X", "O"},
+                "X"
+        );
+
+        if (escolha == 0) {
+            modoAtual = ModoJogo.JOGADOR_VS_IA;
+            if (escolhaSimbolo == 0) {
+                simboloJogador = "X";
+                simboloIA = "O";
+            } else {
+                simboloJogador = "O";
+                simboloIA = "X";
+            }
+            tabuleiro = new Tabuleiro(simboloJogador);
+            sortearPrimeiroJogador();
+            mensagemComecoPartida();
+            iniciarJogoContraIA();
+        } else if (escolha == 1) {
+            modoAtual = ModoJogo.JOGADOR_VS_JOGADOR;
+            if (escolhaSimbolo == 0) {
+                simboloJogador = "X";
+                simboloJogador2 = "O";
+            } else {
+                simboloJogador = "O";
+                simboloJogador2 = "X";
+            }
+            tabuleiro = new Tabuleiro(simboloJogador);
+            sortearPrimeiroJogador();
+            mensagemComecoPartida();
+        }
+    }
+
+    public void mensagemComecoPartida() {
+        if (modoAtual == ModoJogo.JOGADOR_VS_IA) {
+            String mensagem = "Quem começa é " + (jogadorAtual.equals(simboloJogador) ? "Jogador 1" : "IA");
+            JOptionPane.showMessageDialog(this, mensagem, "Início da partida", JOptionPane.INFORMATION_MESSAGE);
+        } else if (modoAtual == ModoJogo.JOGADOR_VS_JOGADOR) {
+            String mensagem = "O jogador " + (jogadorAtual.equals(simboloJogador) ? "1" : "2") + " começa!";
+            JOptionPane.showMessageDialog(this, mensagem, "Início da partida", JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void iniciarJogoContraIA() {
+        if (simboloJogador == null || simboloIA == null) {
+            // Certifique-se de que os símbolos tenham sido definidos
+            interfaceGrafica.mostrarPopupPersonalizado("Você precisa definir os símbolos para o jogador e a IA.");
+        } else if (modoAtual == ModoJogo.JOGADOR_VS_IA) {
+            // Lógica para o primeiro movimento da IA
+            int poz_max = ia.melhorMovimento(interfaceGrafica.copiarEstadoTabela);
+            if (InterfaceGrafica.botoes[poz_max] != null) {
+                InterfaceGrafica.botoes[poz_max].setText(simboloIA);
+                InterfaceGrafica.botoes[poz_max].setForeground(Color.red);
+                contador += 1;
+                verificarVencedor();
+            }
+        }
+    }
+
+    // Método para lidar com a jogada de um jogador humano
+    private void jogadorContraJogador(JButton pressedButton) {
+        if (pressedButton.getText().isEmpty() && !vitoria) {
+            if (jogadorAtual.equals(simboloJogador)) {
+                pressedButton.setText(simboloJogador);
+                pressedButton.setForeground(Color.blue);
+                jogadorAtual = simboloJogador2; // Alterne para o próximo jogador
+            } else {
+                pressedButton.setText(simboloJogador2);
+                pressedButton.setForeground(Color.red);
+                jogadorAtual = simboloJogador; // Alterne para o próximo jogador
+            }
+            interfaceGrafica.copiarEstadoTabela = tabuleiro.copiarTabela();
+            contador += 1;
+            verificarVencedor();
+        } else {
+            mensagens.movimentoError();
+        }
     }
 
     // Lida com as ações dos botões do tabuleiro
     public void actionPerformed(ActionEvent a) {
         JButton pressedButton = (JButton) a.getSource();
-        if (pressedButton.getText().isEmpty()) {
-            pressedButton.setText("X");
-            pressedButton.setForeground(Color.blue);
-            interfaceGrafica.copiarEstadoTabela = tabuleiro.copiarTabela();
-            contador += 1;
-            verificarVencedor();
-
-            int poz_max = ia.melhorMovimento(interfaceGrafica.copiarEstadoTabela);
-            if (InterfaceGrafica.botoes[poz_max] != null) {
-                InterfaceGrafica.botoes[poz_max].setText("O");
-                InterfaceGrafica.botoes[poz_max].setForeground(Color.red);
+        if (escolha == 0) { // Modo Jogador x IA
+            if (pressedButton.getText().isEmpty()) {
+                pressedButton.setText(simboloJogador);
+                pressedButton.setForeground(Color.blue);
+                interfaceGrafica.copiarEstadoTabela = tabuleiro.copiarTabela();
                 contador += 1;
                 verificarVencedor();
+                // Após o jogador humano fazer uma jogada, permita que a IA faça a próxima jogada
+                if (!vitoria) {
+                    iniciarJogoContraIA();
+                }
+            } else {
+                mensagens.movimentoError();
             }
-        } else {
-            mensagens.movimentoError();
+        }
+        else if (escolha == 1) {
+            jogadorContraJogador(pressedButton); // Modo Jogador1 x Jogador2
+        }
+    }
+
+    public void sortearPrimeiroJogador() { // Novo método para sortear o primeiro jogador
+        if (modoAtual == ModoJogo.JOGADOR_VS_IA) {
+            if (random.nextBoolean()) {
+                jogadorAtual = simboloIA;
+            } else {
+                jogadorAtual = simboloJogador;
+            }
+        } else if (modoAtual == ModoJogo.JOGADOR_VS_JOGADOR) {
+            if (random.nextBoolean()) {
+                jogadorAtual = simboloJogador;
+            } else {
+                jogadorAtual = simboloJogador2;
+            }
         }
     }
 
@@ -78,103 +203,90 @@ public class JogoDaVelha extends JFrame implements ActionListener {
         this.setSize(820, 680);
         this.setContentPane(interfaceGrafica.getPainelPrincipal());
         this.setTitle("Jogo Da Velha - Desenvolvido por Lucas Sanches");
-        // Tamanho fixo do programa, sem alteração
-        this.setResizable(false);
-        // Deixa o programa no meio da tela, centralizado
-        this.setLocationRelativeTo(null);
-    }
-
-    // Verifica o vencedor do jogo
-    public int vencedorPartida(int[] cc) {
-        int rez = -1;
-        int zero = 0;
-        boolean game_over = false;
-
-        for (int i = 0; i <= 7; i++) {
-            if ((cc[ganharCombinacoes[i][0]] == 1) && (cc[ganharCombinacoes[i][0]] == cc[ganharCombinacoes[i][1]]) && (cc[ganharCombinacoes[i][1]] == cc[ganharCombinacoes[i][2]]) && (cc[ganharCombinacoes[i][0]] != 0)) {
-                game_over = true;
-                rez = -1000000;
-            }
-
-            if ((cc[ganharCombinacoes[i][0]] != 2) || (cc[ganharCombinacoes[i][0]] != cc[ganharCombinacoes[i][1]]) || (cc[ganharCombinacoes[i][1]] != cc[ganharCombinacoes[i][2]]) || (cc[ganharCombinacoes[i][0]] == 0)) {
-                continue;
-            }
-            game_over = true;
-            rez = 1000000;
-        }
-
-        for (int c = 1; c <= 9; c++) {
-            if (cc[c] != 0) {
-                zero++;
-            }
-        }
-
-        if ((zero >= 9) && (!game_over)) {
-            rez = 0;
-        }
-
-        return rez;
+        this.setResizable(false); // Tamanho fixo do programa, sem alteração
+        this.setLocationRelativeTo(null);  // Deixa o programa no meio da tela, centralizado
     }
 
     // Inicia um novo jogo
     public void novoJogo() {
+        identificaJogador = null;
+        simboloJogador = null;
+        simboloIA = null;
+        simboloJogador2 = null;
+        jogadorAtual = null;
+        escolha = 0;
+        modoAtual = null;
         contador = 0;
         vitoria = false;
         resultado = "";
         jogador.resetarPontuacoes();
-
         for (int i = 1; i <= 9; i++) {
             InterfaceGrafica.botoes[i].setText("");
             interfaceGrafica.copiarEstadoTabela[i] = 0;
         }
+        selecionarModoDeJogo();
     }
 
     // Metodo Checar vencedor
     public void verificarVencedor() {
-        int nr = 0;
         vitoria = false;
 
-        for (int i = 0; i <= 7; i++) {
-            if ((InterfaceGrafica.botoes[ganharCombinacoes[i][0]].getText().equals("X")) &&
-                    (InterfaceGrafica.botoes[ganharCombinacoes[i][0]].getText().equals(InterfaceGrafica.botoes[ganharCombinacoes[i][1]].getText())) &&
-                    (InterfaceGrafica.botoes[ganharCombinacoes[i][1]].getText().equals(InterfaceGrafica.botoes[ganharCombinacoes[i][2]].getText())) &&
-                    (!InterfaceGrafica.botoes[ganharCombinacoes[i][0]].getText().isEmpty())) {
-                identificaJogador = "X";
-                vitoria = true;
-            }
+        for (int i = 0; i < 8; i++) {
+            int a = ganharCombinacoes[i][0];
+            int b = ganharCombinacoes[i][1];
+            int c = ganharCombinacoes[i][2];
 
-            if ((!InterfaceGrafica.botoes[ganharCombinacoes[i][0]].getText().equals("O")) ||
-                    (!InterfaceGrafica.botoes[ganharCombinacoes[i][0]].getText().equals(InterfaceGrafica.botoes[ganharCombinacoes[i][1]].getText())) ||
-                    (!InterfaceGrafica.botoes[ganharCombinacoes[i][1]].getText().equals(InterfaceGrafica.botoes[ganharCombinacoes[i][2]].getText())) ||
-                    (InterfaceGrafica.botoes[ganharCombinacoes[i][0]].getText().isEmpty())) {
-                continue;
+            String jogadorA = InterfaceGrafica.botoes[a].getText();
+            String jogadorB = InterfaceGrafica.botoes[b].getText();
+            String jogadorC = InterfaceGrafica.botoes[c].getText();
+
+            if (jogadorA.equals(jogadorB) && jogadorB.equals(jogadorC) && !jogadorA.isEmpty()) {
+                identificaJogador = jogadorA;
+                vitoria = true;
+                break;
             }
-            identificaJogador = "O";
-            vitoria = true;
         }
 
+        int nr = 0;
         for (int c = 1; c <= 9; c++) {
-            if ((InterfaceGrafica.botoes[c].getText().equals("X")) || (InterfaceGrafica.botoes[c].getText().equals("O"))) {
+            String botoes = InterfaceGrafica.botoes[c].getText();
+            if (botoes.equals(simboloJogador) || botoes.equals(simboloIA) ||
+                    botoes.equals(simboloJogador2) || botoes.equals(jogadorAtual)) {
                 nr++;
             }
         }
-        if (vitoria) {
-            if (identificaJogador.equals("O")) {
-                derrotasJogadorUm += 1;
-                resultado = "Você Perdeu!!!";
-                mensagens.mostrarVencedor(vitoriasJogadorUm, derrotasJogadorUm, empates, resultado);
-            }
 
-            if (identificaJogador.equals("X")) {
-                vitoriasJogadorUm += 1;
-                resultado = "Você Ganhou o jogo!!!";
-                // Exibe o resultado do jogo
-                mensagens.mostrarVencedor(vitoriasJogadorUm, derrotasJogadorUm, empates, resultado);
+        if (vitoria) {
+            if (modoAtual == ModoJogo.JOGADOR_VS_IA) {
+                if (identificaJogador.equals(simboloIA)) {
+                    derrotasJogadorUm += 1;
+                    resultado = "Você Perdeu!!!";
+                } else {
+                    vitoriasJogadorUm += 1;
+                    resultado = "Você Ganhou o jogo!!!";
+                }
+            } else if (modoAtual == ModoJogo.JOGADOR_VS_JOGADOR) {
+                if (identificaJogador.equals(simboloJogador)) {
+                    vitoriasJogadorUm += 1;
+                    resultado = "Jogador 1 Ganhou o jogo!!!";
+                } else {
+                    derrotasJogadorUm += 1;
+                    resultado = "Jogador 2 Ganhou o jogo!!!";
+                }
             }
         } else if (nr == 9 && contador >= 9) {
             empates += 1;
             resultado = "Jogo empatado!!!";
-            mensagens.mostrarVencedor(vitoriasJogadorUm, derrotasJogadorUm, empates, resultado);
         }
+
+        if (vitoria || nr == 9) {
+            // Exibir o resultado do jogo
+            mensagens.mostrarVencedor(vitoriasJogadorUm, derrotasJogadorUm, empates, resultado, modoAtual);
+            for (int i = 1; i <= 9; i++) {  // Zerar os botões
+                InterfaceGrafica.botoes[i].setText("");
+                interfaceGrafica.copiarEstadoTabela[i] = 0;
+            }
+        }
+        vitoria = false;
     }
 }
