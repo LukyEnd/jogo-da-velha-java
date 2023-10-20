@@ -4,6 +4,12 @@
 
 Este é um simples jogo da velha (Tic-Tac-Toe) desenvolvido em Java. O jogo permite que dois jogadores joguem um contra o outro ou um jogador jogue contra uma IA. O projeto inclui uma interface gráfica e várias funcionalidades, como detecção de vitória, empate e reinício do jogo.
 
+## Demonstração
+
+Aqui está uma captura de tela deste jogo da Velha para ter uma ideia:
+
+![Captura de tela do Jogo da Velha](/src/meuApp/jogos/JogoDaVelha/Imagens/JogoDaVelha.png)
+
 ## Funcionalidades
 
 - Modo de jogo para dois jogadores (Jogador 1 vs. Jogador 2).
