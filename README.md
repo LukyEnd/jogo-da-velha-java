@@ -1,4 +1,4 @@
-# Jogo da Velha - README
+# Jogo da Velha
 
 ## Descrição
 
