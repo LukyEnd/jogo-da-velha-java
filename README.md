@@ -8,7 +8,7 @@ Este é um simples jogo da velha (Tic-Tac-Toe) desenvolvido em Java. O jogo perm
 
 Aqui está uma captura de tela deste jogo da Velha para ter uma ideia:
 
-![Captura de tela do Jogo da Velha](/src/meuApp/jogos/JogoDaVelha/Imagens/JogoDaVelha.png)
+![Captura de tela do Jogo da Velha](/src/meuApp/jogos/JogoDaVelha/Imagens/jogoDaVelha.png)
 
 ## Funcionalidades
 
